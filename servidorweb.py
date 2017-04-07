@@ -60,6 +60,7 @@ def generar_respuesta(url):
 cabecera = 'HTTP/1.0 200 OK\r\nDate: Friday, 6-May-11 15:40:00 GMT\r\nServer: Apache/1.1.1\r\nContent-type: text/html\r\nContent-length: 460\r\nConnection: keep-alive\r\n'
 
 if __name__ == "__main__":
+	timeout = 300
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	port = int(sys.argv[1])
 	s.bind(("", port))
@@ -68,7 +69,7 @@ if __name__ == "__main__":
 
 	while True:
 		print 'en select'
-		read_sockets, write_sockets, error_sockets = select.select(socket_list , [], [])
+		read_sockets, write_sockets, error_sockets = select.select(socket_list , [], [], timeout)
 		print 'saliendo select'
 
 		for sock in read_sockets:
@@ -88,6 +89,9 @@ if __name__ == "__main__":
 				sock.send(mensaje)
 				socket_list.remove(sock)
 				sock.close()
+
+		if not (read_sockets or write_sockets or error_sockets):
+			print 'Servidor web inactivo'
 
 	s.close()
 
