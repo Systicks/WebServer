@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html manifest="manifest.appcache">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <link rel="stylesheet" type="text/css" href="./css/estilos1.css">
+    <link rel="stylesheet" type="text/css" href="./css/id.css">
+    <link rel="stylesheet" type="text/css" href="./css/galeria.css">
+    <link rel="shortcut icon"  href="./images/icon.ico">
+    <title>Smart Room Proyect</title>
+  </head>
+  <script src=http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js></script>
+ <script type="text/javascript">
+
+    function loadDoc(str) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          CambiarTabla(this);
+        }
+      };
+      xhttp.open("GET", "tablas/" + str + ".xml", true);
+      xhttp.send();
+    }
+    function CambiarTabla(xml){
+      var formato = '<table id="table1" class="tablaAjax" ><tr><th> &nbsp;&nbsp;&nbsp;&nbsp;Ciudad&nbsp;&nbsp;&nbsp;&nbsp; </th><th>Temperatura(º)</th><th>Humedad(%)</th><th>Ruido</th><th>Nivel de luz</th><th>Color de Iluminación</th></tr>';
+      var elemento = xml.responseXML.documentElement.getElementsByTagName("ciudad");
+        for (i=0;i<elemento.length;i++)
+          {
+            formato += "<tr>" + "<td>" + elemento[i].getElementsByTagName("nombre")[0].childNodes[0].nodeValue + "</td>" + "<td>" + elemento[i].getElementsByTagName("temperatura")[0].childNodes[0].nodeValue + "</td>" + "<td>" + elemento[i].getElementsByTagName("humedad")[0].childNodes[0].nodeValue + "</td>" + "<td>" + elemento[i].getElementsByTagName("ruido")[0].childNodes[0].nodeValue + "</td>" + "<td>" + elemento[i].getElementsByTagName("luz")[0].childNodes[0].nodeValue + "</td>" + "<td>" + elemento[i].getElementsByTagName("iluminacion")[0].childNodes[0].nodeValue + "</td>" + "</tr>";
+          }
+      document.getElementById("tabla").innerHTML = formato;
+    }
+
+
+    </script>
+
+  <body>
+      <div id="Contenedor2" style="background: url(images/pattern.jpg)"> <!-- Si pongo el patrón en el fichero de estilos no funciona -->
+        <!-- Navbar -->
+    <div id="barranavegacion">
+          <ul class="navbar">
+            <li class="navbar"><a href="index.html" class="navbar"> HOME</a></li>
+            <li class="navbar"><a href="config.html" class="navbar">CONFIGURACIÓN</a></li>
+            <li class="navbar"><a href="minombre.html" class="navbar">MI NOMBRE</a></li>
+            <li class="navbar"><a href="galeria.html" class="navbar">GALERÍA</a></li>
+             <li class="navbar"><a href="galeria2.html" class="navbar">GALERÍA 2</a>
+             <li class="navbar"><a href="tablas.html" class="navbar">TABLA</a></li>
+          </ul>
+          <h1 class="minombre"> SMART ROOM PROYECT</h1> 
+      </div>
+      <div id="Galeria">
+          <div id="tabla" class="tabla">
+          <table id="table1">
+          <tr>
+            <th> &nbsp;&nbsp;&nbsp;&nbsp;Ciudad&nbsp;&nbsp;&nbsp;&nbsp; </th>
+            <th>Temperatura(º)</th>
+            <th>Humedad(%)</th>
+            <th>Ruido</th>
+            <th>Nivel de luz</th>
+            <th>Color de Iluminación</th>
+          </tr>
+          <tr>
+            <td>Alcalá</td>
+            <td>23</td>
+            <td>10</td>
+            <td>5</td>
+            <td>7</td>
+            <td>FF0000</td>
+          </tr>
+          <tr>
+            <td>Guadalajara</td>
+             <td>23</td>
+            <td>10</td>
+            <td>5</td>
+            <td>7</td>
+            <td>FF0000</td>
+          </tr>
+          <tr>
+            <td>Madrid</td>
+             <td>23</td>
+            <td>10</td>
+            <td>5</td>
+            <td>7</td>
+            <td>FF0000</td>
+          </tr>
+          <tr>
+            <td>Barcelona</td>
+             <td>23</td>
+            <td>10</td>
+            <td>5</td>
+            <td>7</td>
+            <td>FF0000</td>
+          </tr>
+          <tr>
+            <td>Bilbao</td>
+            <td>23</td>
+            <td>10</td>
+            <td>5</td>
+            <td>7</td>
+            <td>FF0000</td>
+          </tr>
+        </table>
+        </div><br>
+        <form action=""> 
+          <select name="tablas" onchange="loadDoc(this.value)">
+            <option value="1">Tabla 1</option>
+            <option value="2">Tabla 2</option>
+            <option value="3">Tabla 3</option>
+            <option value="4">Tabla 4</option>
+          </select>
+        </form>
+      </div>
+      <div id="foot" >
+
+        <h3>Universidad de Alcalá</h3> 
+
+      </div>
+   </div> 
+  </body>
+</html>

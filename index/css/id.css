@@ -1,0 +1,167 @@
+      #Contenedor
+      {
+        width:100%;
+        margin:0;
+      }
+      #Título
+      {
+        background-color: #424242; 
+        width: 100%; 
+        color: white;
+        position: absolute;
+        top: 0px; 
+        left: 0px;
+        height:40px;
+        overflow: hidden;
+        min-width: 800px;
+      }
+      #Menú
+      {
+        background-color:#BDBDBD;
+        height:35px;
+        width:50%;
+        float:left; 
+        font-size: 30 ; 
+        text-align: center;
+        position: absolute;
+        top: 40px; 
+        left: 0px;
+      }
+      #Informacion
+      {
+         background-color:#A4A4A4;
+         height:35px;
+         width:50%;
+         float:right;
+         text-align: left;
+         position: absolute;
+         top: 40px; 
+         right: 0;
+         font-size: 27px; 
+         color:#196814;
+      }
+      #Datos
+      {
+         background-color:#E6E6E6;
+         width:50%;
+         color:#FF4000;
+         float:left;
+         text-align: center;
+         position: absolute;
+         top: 75px;
+         bottom: 0;
+         left: 0;
+      }
+      #DatosSensores
+      {
+         background-color:#E6E6E6;
+         width:50%;
+         color:#FF4000;
+         float:right;
+         text-align: center;
+         position: absolute;
+         right: 0;
+         top: 75px;
+         bottom: 0px;
+        
+      }
+      #Pie{
+        background-color: #424242; 
+        width: 100%; 
+        height:25px;
+        color: white;
+        text-align:center;
+        font-weight: bold;
+        /*clear: both;*/
+        position: fixed;
+        bottom: 0;
+        left:0;
+      }
+
+      #Sensores
+      {
+         background-color:#E6E6E6;
+         width:100%;
+         float:center;
+         text-align: left;
+         margin-top:0px;
+         margin-bottom: 0px;
+        -webkit-column-count: 2; /* Chrome, Safari, Opera */
+        -moz-column-count: 2; /* Firefox */
+         column-count: 2;
+        -webkit-column-gap: 40px; /* Chrome, Safari, Opera */
+        -moz-column-gap: 40px; /* Firefox */
+        column-gap: 40px;
+        -webkit-column-rule: 5px solid gray; /* Chrome, Safari, Opera */
+        -moz-column-rule: 5px solid gray; /* Firefox */
+        column-rule: 5px solid gray;
+        margin-top: 40px;
+        overflow: auto;
+        scroll-behavior: auto;
+        position: absolute;
+        bottom: 0px;
+        top:0px;
+        min-height: 650px;
+        min-width: 800px;
+      }
+      #Retorno{
+        background-color: #6E6E6E; 
+        width: 100%; 
+        height:25px;
+        color: white;
+        text-align:center;
+        font-weight: bold;
+         position: fixed;
+        bottom: 25px;
+        left: 0px;
+      }
+
+      #Nombre
+      {
+         /*height:660px;*/
+         width:100%;
+         float:center;
+         text-align: left;
+         margin-top:0px;
+         margin-bottom: 0px;
+         left: 0px;
+         position: relative;
+         height: 250px;
+
+      }
+       #Video
+      {
+         width:100%;
+         float:center;
+         text-align: center;
+         margin-top:50px;
+         height: 650px;
+      }
+      body{
+        background-color: #E6E6E6;
+        margin: 0;
+      }
+      #foot{
+        background-color: #424242; 
+        width: 100%; 
+        height:25px;
+        color: white;
+        text-align:center;
+        font-weight: bold;
+        float: bottom;
+        left: 0;
+        margin-top: 5px;
+      }
+      #barranavegacion{
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        max-height: 30px;
+      }
+      #Contenedor2
+      {
+        width:100%;
+        margin:0;
+        min-width: 1200px;
+      }
+      

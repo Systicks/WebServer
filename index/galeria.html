@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html manifest="manifest.appcache">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <link rel="stylesheet" type="text/css" href="./css/estilos1.css">
+    <link rel="stylesheet" type="text/css" href="./css/id.css">
+    <link rel="stylesheet" type="text/css" href="./css/galeria.css">
+    <link rel="shortcut icon"  href="./images/icon.ico">
+    <title>Smart Room Proyect</title>
+  </head>
+  <script src=http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js></script>
+  <script language = "javascript" type= "text/javascript" src= "scripts/galeria.js"></script>
+  <script type="text/javascript" src="http://cdn.jquerytools.org/1.2.6/full/jquery.tools.min.js"></script>
+
+  <body>
+      <div id="Contenedor2" style="background: url(images/pattern.jpg)"> <!-- Si pongo el patrón en el fichero de estilos no funciona -->
+        <!-- Navbar -->
+    <div id="barranavegacion">
+          <ul class="navbar">
+            <li class="navbar"><a href="index.html" class="navbar"> HOME</a></li>
+            <li class="navbar"><a href="config.html" class="navbar">CONFIGURACIÓN</a></li>
+            <li class="navbar"><a href="minombre.html" class="navbar">MI NOMBRE</a></li>
+            <li class="navbar"><a href="galeria.html" class="navbar">GALERÍA</a></li>
+            <li class="navbar"><a href="galeria2.html" class="navbar">GALERÍA 2</a>
+             <li class="navbar"><a href="tablas.html" class="navbar">TABLA</a></li>
+          </ul>
+          <h1 class="minombre"> SMART ROOM PROYECT</h1> 
+      </div>
+
+      <div id="Galeria">
+
+          <img src="images/gal1.jpg"  id="img1" width="300" height="200" rel="#mies1"> 
+          <img src="images/gal2.jpg"  id="img2" width="300" height="200" rel="#mies2"> 
+          <img src="images/gal3.jpg"  id="img3" width="300" height="200" rel="#mies3"> <br>
+          <img src="images/gal4.jpg"  id="img4"  width="300" height="200" rel="#mies4"> 
+          <img src="images/gal5.jpg"  id="img5"  width="300" height="200" rel="#mies5"> 
+          <img src="images/gal6.jpg"  id="img6"  width="300" height="200" rel="#mies6">
+    </div>
+
+      <!-- ///////  JQuery Tools Overlay /////// -->
+        <div class="simple_overlay" id="mies1">
+          <!-- large image -->
+          <img src="images/gal1.jpg">
+         
+          <!-- image details -->
+          <div class="details">
+            <h3>Tormenta</h3>
+          </div>
+        </div>
+      <div class="simple_overlay" id="mies2">
+          <!-- large image -->
+          <img src="images/gal2.jpg">
+         
+          <!-- image details -->
+          <div class="details">
+            <h3>Satélite</h3>
+          
+          </div>
+        </div>
+        <div class="simple_overlay" id="mies3">
+          <!-- large image -->
+          <img src="images/gal3.jpg">
+         
+          <!-- image details -->
+          <div class="details">
+            <h3>Rayos</h3>
+          </div>
+        </div>
+        <div class="simple_overlay" id="mies4">
+          <!-- large image -->
+          <img src="images/gal4.jpg">
+         
+          <!-- image details -->
+          <div class="details">
+            <h3>Estación Meteorológica</h3>
+          </div>
+        </div>
+        <div class="simple_overlay" id="mies5">
+          <!-- large image -->
+          <img src="images/gal5.jpg">
+         
+          <!-- image details -->
+          <div class="details">
+          <h3>Estación Meteorológica</h3>
+          </div>
+        </div>
+        <div class="simple_overlay" id="mies6">
+          <!-- large image -->
+          <img src="images/gal6.jpg">
+         
+          <!-- image details -->
+          <div class="details">
+            <h3>Estación Meteorológica</h3>
+          </div>
+        </div>
+
+        </div>
+
+      <div id="foot" >
+
+        <h3>Universidad de Alcalá</h3> 
+
+      </div>
+   </div> 
+  </body>
+</html>

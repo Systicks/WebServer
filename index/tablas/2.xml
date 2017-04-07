@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ciudades>
+	<ciudad>
+		<nombre>Santiago</nombre>
+		<temperatura>26</temperatura>
+		<ruido>2</ruido>
+		<humedad>15</humedad>
+		<iluminacion>FFFFFF</iluminacion>
+		<luz>11</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Toledo</nombre>
+		<temperatura>26</temperatura>
+		<ruido>2</ruido>
+		<humedad>15</humedad>
+		<iluminacion>FFFFFF</iluminacion>
+		<luz>11</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Albacete</nombre>
+		<temperatura>26</temperatura>
+		<ruido>2</ruido>
+		<humedad>15</humedad>
+		<iluminacion>FFFFFF</iluminacion>
+		<luz>11</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Valencia</nombre>
+				<temperatura>26</temperatura>
+		<ruido>2</ruido>
+		<humedad>15</humedad>
+		<iluminacion>FFFFFF</iluminacion>
+		<luz>11</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Granada</nombre>
+		<temperatura>26</temperatura>
+		<ruido>2</ruido>
+		<humedad>15</humedad>
+		<iluminacion>FFFFFF</iluminacion>
+		<luz>11</luz>
+	</ciudad>
+</ciudades>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ciudades>
+	<ciudad>
+		<nombre>Zaragoza</nombre>
+		<temperatura>23</temperatura>
+		<ruido>1</ruido>
+		<humedad>40</humedad>
+		<iluminacion>0000F0</iluminacion>
+		<luz>21</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Gandía</nombre>
+		<temperatura>23</temperatura>
+		<ruido>1</ruido>
+		<humedad>40</humedad>
+		<iluminacion>0000F0</iluminacion>
+		<luz>21</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Pamplona</nombre>
+		<temperatura>23</temperatura>
+		<ruido>1</ruido>
+		<humedad>40</humedad>
+		<iluminacion>0000F0</iluminacion>
+		<luz>21</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Ciudad Real</nombre>
+		<temperatura>23</temperatura>
+		<ruido>1</ruido>
+		<humedad>40</humedad>
+		<iluminacion>0000F0</iluminacion>
+		<luz>21</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Oviedo</nombre>
+		<temperatura>23</temperatura>
+		<ruido>1</ruido>
+		<humedad>40</humedad>
+		<iluminacion>0000F0</iluminacion>
+		<luz>21</luz>
+	</ciudad>
+</ciudades>

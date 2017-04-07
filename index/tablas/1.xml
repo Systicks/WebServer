@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ciudades>
+	<ciudad>
+		<nombre>Alcalá</nombre>
+		<temperatura>23</temperatura>
+		<ruido>5</ruido>
+		<humedad>10</humedad>
+		<iluminacion>FF0000</iluminacion>
+		<luz>7</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Guadalajara</nombre>
+		<temperatura>23</temperatura>
+		<ruido>5</ruido>
+		<humedad>10</humedad>
+		<iluminacion>FF0000</iluminacion>
+		<luz>7</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Madrid</nombre>
+		<temperatura>23</temperatura>
+		<ruido>5</ruido>
+		<humedad>10</humedad>
+		<iluminacion>FF0000</iluminacion>
+		<luz>7</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Barcelona</nombre>
+		<temperatura>23</temperatura>
+		<ruido>5</ruido>
+		<humedad>10</humedad>
+		<iluminacion>FF0000</iluminacion>
+		<luz>7</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Bilbao</nombre>
+		<temperatura>23</temperatura>
+		<ruido>5</ruido>
+		<humedad>10</humedad>
+		<iluminacion>FF0000</iluminacion>
+		<luz>7</luz>
+	</ciudad>
+</ciudades>

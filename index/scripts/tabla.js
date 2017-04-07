@@ -1,0 +1,93 @@
+
+    $(document).ready( function() {
+            $('tr:nth-child(even)').css("background-color", "#A4A4A4");
+            $('tr:nth-child(odd)').css("background-color", "#585858");
+            $('table').css("width", "1000px");
+            $('table').css("color", "white");
+            $('table').css("font-size", "20px");
+            $('table').css("height", "300px");
+            $('table').css("padding", "0");
+            $('table').css("margin", "0");
+            $('td').css("color", "black");
+            $('td').css("border", "1px dotted black");
+            $('th').css("background-color", "#222");
+            $('th').css("color", "white");
+            $('th').css("text-align", "center");
+            $('th').css("border", "1px dotted black");
+    	
+          $("#pag1").onmouseover(function(){
+            $('tr:nth-child(even)').css("background-color", "#A4A4A4");
+            $('tr:nth-child(odd)').css("background-color", "#585858");
+            $('table').css("width", "1000px");
+            $('table').css("color", "white");
+            $('table').css("font-size", "20px");
+            $('table').css("height", "300px");
+            $('table').css("padding", "0");
+            $('table').css("margin", "0");
+            $('td').css("color", "black");
+            $('td').css("border", "1px dotted black");
+            $('th').css("background-color", "#222");
+            $('th').css("color", "white");
+            $('th').css("text-align", "center");
+            $('th').css("border", "1px dotted black");
+		        $("#table1").show();
+		    });
+          $("#pag2").click(function(){
+            $('tr:nth-child(even)').css("background-color", "green");
+            $('tr:nth-child(odd)').css("background-color", "#585858");
+            $('table').css("width", "1000px");
+            $('table').css("color", "white");
+            $('table').css("font-size", "20px");
+            $('table').css("height", "300px");
+            $('table').css("padding", "0");
+            $('table').css("margin", "0");
+            $('td').css("color", "black");
+            $('td').css("border", "1px dotted black");
+            $('th').css("background-color", "#222");
+            $('th').css("color", "white");
+            $('th').css("text-align", "center");
+            $('th').css("border", "1px dotted black");
+		        $("#table1").hide();
+		        $("#table2").show();
+		    });
+          $("#pag3").click(function(){
+            $('tr:nth-child(even)').css("background-color", "red");
+            $('tr:nth-child(odd)').css("background-color", "#585858");
+            $('table').css("width", "1000px");
+            $('table').css("color", "white");
+            $('table').css("font-size", "20px");
+            $('table').css("height", "300px");
+            $('table').css("padding", "0");
+            $('table').css("margin", "0");
+            $('td').css("color", "black");
+            $('td').css("border", "1px dotted black");
+            $('th').css("background-color", "#222");
+            $('th').css("color", "white");
+            $('th').css("text-align", "center");
+            $('th').css("border", "1px dotted black");
+		        $("#table1").hide();
+		        $("#table2").hide();
+		        $("#table3").show();
+		    });
+          $("#pag4").click(function(){
+            $('tr:nth-child(even)').css("background-color", "purple");
+            $('tr:nth-child(odd)').css("background-color", "#585858");
+            $('table').css("width", "1000px");
+            $('table').css("color", "white");
+            $('table').css("font-size", "20px");
+            $('table').css("height", "300px");
+            $('table').css("padding", "0");
+            $('table').css("margin", "0");
+            $('td').css("color", "black");
+            $('td').css("border", "1px dotted black");
+            $('th').css("background-color", "#222");
+            $('th').css("color", "white");
+            $('th').css("text-align", "center");
+            $('th').css("border", "1px dotted black");
+		        $("#table1").hide();
+		        $("#table2").hide();
+		        $("#table3").hide();
+		        $("#table4").show();
+		    });
+          
+        });

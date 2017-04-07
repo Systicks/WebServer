@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html manifest="manifest.appcache">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Smart Room Proyect</title>
+    <link rel="stylesheet" type="text/css" href="./css/id.css">
+    <link rel="shortcut icon"  href="./images/icon.ico">
+    <link rel="stylesheet" type="text/css" href="./css/estilos1.css">
+    <script language = "javascript" type= "text/javascript" src= "scripts/datos.js"></script>
+    <script language = "javascript" type= "text/javascript" src= "scripts/verificacion.js"></script>
+    <script type="text/javascript">
+
+    function loadDoc() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+      if (xhttp.readyState == 4 && xhttp.status == 200) {
+        CambiarListaCiudad(this);
+    }
+    }
+
+      var paises = document.getElementById("pais").value;//Variable que contiene el pais introducido en el formulario
+      xhttp.open("GET", "ciudades/" + paises + ".txt", true); //Hacemos el Get del archivo de texto con el nombre del país seleccionado
+      xhttp.send();
+    }
+      function CambiarListaCiudad(xml){
+        var lista = xml.responseText.split("\n"); // Dividir el fichero en un array que contenga los elementos de cada fila
+        var listaciudad ="";//Crear una cadena vacía
+        for (var i = 0; i < lista.length; i++)//añadir los elementos de la lista a la cadena
+          listaciudad += "<option value=" + lista[i] + ">" + lista[i] + "</option>";//Lo que queremos es añadir el html de las opciones del select
+        document.getElementById("ciudades").innerHTML = listaciudad;//cambiamos el valor de lo que hay dentro del select a nuestras opciones
+      }
+
+    </script>
+  </head>
+  <body >
+    <div id="Contenedor">
+      <div id="Título">
+        <h1>  SMART ROOM PROYECT </h1>
+      </div>
+
+      <div id="Sensores">
+        <h2>Datos de la habitación</h2>
+
+        <form class= "config" oninput="x.value=parseInt(tempmax.value)-parseInt(tempmin.value)">
+         País: <input list="Paises" id="pais" onblur="validarpais()" onchange="loadDoc()">
+          <datalist id="Paises">
+            <option value="España">
+            <option value="Francia">
+            <option value="Italia">
+            <option value="Portugal">
+            <option value="Rusia">
+            <option value="Suiza">
+            <option value="Finlandia">
+            <option value="Alemania">
+            <option value="Polonia">
+            <option value="Turquía">
+          </datalist> <br>
+          Ciudad:
+          <select id="ciudades">
+          <option>Seleccionar</option>
+          </select><br>
+          <!--  Ciudad: <input name="ciudad" type="text" id="ciudad"> <br> -->
+          Coordenadas GPS: <input name="coordenadas" type="text" id="coordenadas" placeholder="+40.514233,-3.348577 " onblur="generarenlace()"> <br>
+          Mapa URL: <input name="mapa" type="URL" id="mapa">
+          <a href="" class="link" target="_blank" id="enlace">Ir</a> <br>
+          Foto: <br><input type="file" name="img" id="foto"><br>
+          Contraseña: <input name="contraseña" type="password" id="contraseña" oninput="validarpass()" onblur="validarpass2()"> <b class="pass" id="calidadpass"></b><br>
+          Email: <input type="text" name="email" id="email" placeholder="email@ejemplo.com" onblur="validarEmail()"><br>
+          <hr> 
+
+          <input type="submit" value="Submit" onclick="guardardatos()"><br><br><br><br>
+
+          <h2>Seleccione los sensores</h2>
+
+          <input type="checkbox" name="Temperatura" id="temperatura"> Temperatura<br>
+          <input type="checkbox" name="Humedad" id="humedad"> Humedad <br>
+          <input type="checkbox" name="sonido" id="sonido"> Nivel de sonido<br>
+          <input type="checkbox" name="luz" id="luz"> Nivel de luz <br>
+          <input type="checkbox" name="movimiento" id="movimiento"> Movimiento<br>
+
+          <h2>Configure Alertas</h2>
+
+           Temperatura máxima: <br><input name="tempmax" type="number" value="30" min="-20" max="45" id="tempmax" onchange="validartemperatura()"> <br>
+           Temperatura mínima:<br><input name="tempmin" type="number" value="10" min="-20" max="45" id="tempmin" onchange="validartemperatura()"> <br><br>
+           Diferencia:<output name="x" for="tempmax tempmin" id="resultado"></output>º
+
+        </form>
+
+      </div>
+
+       <div id="Retorno" >
+       <a class= "pie" href="index.html">Volver a página principal</a> 
+
+      </div>
+
+      <div id="Pie" >
+
+        <h3>Universidad de Alcalá</h3> 
+
+      </div>
+    </div>
+  </body>
+</html>

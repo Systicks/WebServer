@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ciudades>
+	<ciudad>
+		<nombre>Sevilla</nombre>
+		<temperatura>11</temperatura>
+		<ruido>22</ruido>
+		<humedad>12</humedad>
+		<iluminacion>A56743F</iluminacion>
+		<luz>5</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Gijón</nombre>
+		<temperatura>11</temperatura>
+		<ruido>22</ruido>
+		<humedad>12</humedad>
+		<iluminacion>A56743F</iluminacion>
+		<luz>5</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Santander</nombre>
+		<temperatura>11</temperatura>
+		<ruido>22</ruido>
+		<humedad>12</humedad>
+		<iluminacion>A56743F</iluminacion>
+		<luz>5</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Burgos</nombre>
+		<temperatura>11</temperatura>
+		<ruido>22</ruido>
+		<humedad>12</humedad>
+		<iluminacion>A56743F</iluminacion>
+		<luz>5</luz>
+	</ciudad>
+	<ciudad>
+		<nombre>Valladolid</nombre>
+		<temperatura>11</temperatura>
+		<ruido>22</ruido>
+		<humedad>12</humedad>
+		<iluminacion>A56743F</iluminacion>
+		<luz>5</luz>
+	</ciudad>
+</ciudades>

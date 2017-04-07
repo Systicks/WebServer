@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html manifest="manifest.appcache">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <link rel="stylesheet" type="text/css" href="./css/estilos1.css">
+    <link rel="stylesheet" type="text/css" href="./css/id.css">
+    <link rel="shortcut icon"  href="./images/icon.ico">
+    <title>Smart Room Proyect</title>
+  </head>
+
+  <script language = "javascript">
+    function guardarnombre(){
+      if(typeof(Storage)!=="undefined") 
+      {
+        var nom
+        //alert("El nombre ''" + localStorage.getItem("fname") + "'' ha sido guardado correctamente en localStorage");//alerta que se nos muestra al guardar el nombre
+        nom = confirm("El nombre ''" + document.getElementById("nombre").value + "'' se almacenará en localStorage. \nInfo: Si se pulsa cancelar el nombre será 'Anónimo'.")
+        if(nom==true)
+        {
+          localStorage.setItem("fname", document.getElementById("nombre").value);//si aceptamos se guarda el nombre
+        }
+        else
+        {
+          localStorage.setItem("fname", "Anónimo");//si damos a cancelar el nombre que aparece es Anónimo
+        }
+      }
+    }
+    function alertacorreo(){
+      alert("E-mail: carlos.perezrivas@edu.uah.es");
+    }
+    </script>
+
+  <body>
+      <div id="Contenedor2" style="background: url(images/pattern.jpg)"> <!-- Si pongo el patrón en el fichero de estilos no funciona -->
+        <!-- Navbar -->
+    <div id="barranavegacion">
+          <ul class="navbar">
+            <li class="navbar"><a href="index.html" class="navbar"> HOME</a></li>
+            <li class="navbar"><a href="config.html" class="navbar">CONFIGURACIÓN</a></li>
+            <li class="navbar"><a href="minombre.html" class="navbar">MI NOMBRE</a></li>
+            <li class="navbar"><a href="galeria.html" class="navbar">GALERÍA</a></li>
+            <li class="navbar"><a href="galeria2.html" class="navbar">GALERÍA 2</a>
+            <li class="navbar"><a href="tablas.html" class="navbar">TABLA</a></li>
+            
+          </ul>
+          <h1 class="minombre"> SMART ROOM PROYECT</h1> 
+      </div>
+
+      <div id="Nombre">
+
+        <form class="minombre">
+         <b class="minombre">Nombre:</b> <input id= "nombre" name="nombre" type="text" class="minombre"> <br>
+          <!--  <input type="submit" onclick="guardarnombre()" value="Submit"><br><br><br><br> -->
+          <button class="buttonenviar" onclick="guardarnombre()"><span>Enviar </span></button>
+        </form>
+        </div>
+
+      <div id="Video">
+
+        <iframe width="854"; height="480" src="https://www.youtube.com/embed/K4VnWQPW-f4"></iframe>
+        <br><br><br><br><br><br>
+        <audio id= "audio" controls autoplay="true" loop="true">
+          <source src="music/AutumnLeavesBurzum.mp3" type="audio/mpeg"> 
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+      <div id="foot" >
+
+        <h3>Universidad de Alcalá</h3> 
+
+      </div>
+   </div> 
+  </body>
+</html>

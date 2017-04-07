@@ -1,0 +1,147 @@
+
+    #Cont{
+        margin: 0;
+        width:100%;
+    }
+    #Galeria{
+        width:100%;
+         float:center;
+         text-align: center;
+         margin-top:140px;
+         margin-bottom: 0px;
+         left: 0px;
+         position: relative;
+         height: 800px;
+      }
+
+    #Galeria2{
+        margin-top: 20px;
+        width:35%;
+        padding: 3px;
+        background-color: grey;
+        border:2px solid black;
+        height:356px;
+        margin:auto;
+        margin-bottom: 20px;
+    }
+
+    #izquierda, #derecha{  
+        cursor: pointer;   
+        height: 150px;  
+        width:20px; 
+        display: inline-block;
+    }
+    img.arrowleft, img.arrowright{
+         display: inline-block;
+        width: 20px;
+        height: 40px;
+        margin-top: 60px;
+        margin-bottom: 55px;
+
+    }
+    #Galeria3{  
+        display: inline-block;
+        margin-top: 30px;
+        width:1040px;
+        padding: 3px;
+        background-color: grey;
+        border:2px solid black;
+        height:155px;
+        margin:auto;
+        overflow: hidden;
+    }  
+
+      div.tabla{
+        height: 355px;
+        width: 1100px;
+        overflow: hidden;
+        float: center;
+        margin: auto;
+        font-size: 15px;
+      }
+
+      .tooltip {
+        display:none;
+        background-color: green;
+        font-size:15px;
+        height:20px;
+        width:200px;
+        padding:10px;
+        color:black;
+        border-radius: 5px;
+  }
+
+  .simple_overlay {
+ 
+    /* must be initially hidden */
+    display:none;
+ 
+    /* place overlay on top of other elements */
+    z-index:10000;
+ 
+    /* styling */
+    background-color:#333;
+ 
+    width:675px;
+    min-height:200px;
+    border:1px solid #666;
+ 
+    /* CSS3 styling for latest browsers */
+    -moz-box-shadow:0 0 90px 5px #000;
+    -webkit-box-shadow: 0 0 90px #000;
+}
+ 
+/* close button positioned on upper right corner */
+.simple_overlay .close {
+    background:url(http://icons.iconarchive.com/icons/hopstarter/button/32/Button-Close-icon.png);
+    background-repeat: no-repeat;
+    position:absolute;
+    right:-15px;
+    top:-15px;
+    cursor:pointer;
+    height:35px;
+    width:35px;
+}
+.details {
+  position:absolute;
+  top:15px;
+  right:15px;
+  font-size:11px;
+  color:#fff;
+  width:150px;
+  }
+ 
+  .details h3 {
+  color:#aba;
+  font-size:15px;
+  }
+
+  table{
+        width:900px; 
+        color: white; 
+        font-size: 20px; 
+        height: 300px;
+        padding: 0;
+        margin: 0;
+        margin-left: 120px;
+      }
+      table, th, td {
+          border: 2px solid black;
+          text-align: center;
+          color: black;
+      }
+      th, td {
+          padding: 15px;
+          border: 1px dotted black;
+      }
+
+      tr:nth-child(even) {
+          background-color: #A4A4A4;
+      }
+      tr:nth-child(odd) {
+          background-color: #585858;
+      }
+      th {
+        background-color: #222;
+        color: white;
+      }
