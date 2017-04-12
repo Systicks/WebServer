@@ -2,62 +2,99 @@
 # -*- coding: utf-8 -*- 
 import socket, select, string, sys, json, datetime
 
-def analizar_peticion(peticion):
+class HTTP:
 
-	if not peticion:
-		print 'cadena vacia'
-	#print peticion
-	lista_peticion = peticion.splitlines()#Hacemos una lista con cada una de las lineas recibidas
-	metodo, url, version =lista_peticion[0].split()#Dividimos el primer string y guardamos cada campo en una variable
-	#En caso de no especificar el archivo se devuelve la página principal
-	if url == '/':
-		url = '/index.html'
-	return './index' + url #añadimos el ./index para indicar el directorio donde buscar
+	url = './index/index.html'
+	version = 'HTTP/1.0'
 
-def generar_respuesta(url):
-	punto, ruta, extension = url.split('.')
-	#identificamos el tipo de extensión del archivo a enviar
-	if extension == 'css':
-		tipo_contenido = 'Content-type: text/css; charset=utf-8' 
-	elif extension == 'jpeg':
-		tipo_contenido = 'Content-type: image/jpeg'
-	elif extension == 'jpg':
-		tipo_contenido = 'Content-type: image/jpg'
-	elif extension == 'png':
-		tipo_contenido = 'Content-type: image/png'
-	elif extension == 'ico':
-		tipo_contenido = 'Content-type: image/ico'
-	elif extension == 'js':
-		tipo_contenido = 'Content-type: text/javascript'
-	else:
-	 	tipo_contenido = 'Content-type: text/html; charset=utf-8'
+	def __init__(self, peticion):
 
-	try:
-		archivo = open(url, "r")
-	except IOError:
-		print 'Ese archivo no existe'
-		codigo = 'HTTP/1.0 404 No encontrado'
-		return codigo
-	
-	contenido = archivo.read()
-	archivo.close()
+		if not peticion:
+			print 'cadena vacia'
+
+		lista_peticion = peticion.splitlines()#Hacemos una lista con cada una de las lineas recibidas
+		metodo, url, version =lista_peticion[0].split()#Dividimos el primer string y guardamos cada campo en una variable
+		#En caso de no especificar el archivo se devuelve la página principal
+		if url == '/':
+			url = '/index.html'
+		
+		self.version = version
+		self.url = './index' + url #añadimos el ./index para indicar el directorio donde buscar
 
 
-	codigo = 'HTTP/1.0 200 OK'
-	format = "%A, %d-%b-%y %H:%M:%S"
-	fecha = 'Date: ' + datetime.datetime.today().strftime(format) + ' GMT'
-	servidor = 'Server: Python'
-	longitud = 'Content-lenght: ' + str(len(contenido))
-	#conexion = 'Connection: keep-alive'
-	cabecera = [codigo,fecha, servidor,tipo_contenido, longitud, '\r\n']#creamos una lista con los campos de la cabecera
-	separador= '\r\n'
-	cabecera = separador.join(cabecera)#Juntamos los campos de la cabecera
+	def generar_respuesta(self):
+		punto, ruta, extension = self.url.split('.')
+		#identificamos el tipo de extensión del archivo a enviar
+		if extension == 'css':
+			tipo_contenido = 'Content-type: text/css; charset=utf-8' 
+		elif extension == 'jpeg':
+			tipo_contenido = 'Content-type: image/jpeg'
+		elif extension == 'jpg':
+			tipo_contenido = 'Content-type: image/jpg'
+		elif extension == 'png':
+			tipo_contenido = 'Content-type: image/png'
+		elif extension == 'ico':
+			tipo_contenido = 'Content-type: image/ico'
+		elif extension == 'js':
+			tipo_contenido = 'Content-type: text/javascript'
+		elif extension == 'mp3':
+			tipo_contenido = 'Content-type: audio/mp3'
+		else:
+		 	tipo_contenido = 'Content-type: text/html; charset=utf-8'
 
-	mensaje = cabecera + contenido
-	return mensaje
+		try:
+			archivo = open(self.url, "r")
+		except IOError:
+			print 'Ese archivo no existe'
+			codigo = 'HTTP/1.0 404 No encontrado'
+			return codigo
+		
+		contenido = archivo.read()
+		archivo.close()
 
+		if(self.version == 'HTTP/1.0'):
 
-cabecera = 'HTTP/1.0 200 OK\r\nDate: Friday, 6-May-11 15:40:00 GMT\r\nServer: Apache/1.1.1\r\nContent-type: text/html\r\nContent-length: 460\r\nConnection: keep-alive\r\n'
+			codigo = self.version + ' ' + '200 OK'
+			print codigo
+			format = "%A, %d-%b-%y %H:%M:%S"
+			fecha = 'Date: ' + datetime.datetime.today().strftime(format) + ' GMT'
+			servidor = 'Server: Python'
+			longitud = 'Content-lenght: ' + str(len(contenido))
+			#conexion = 'Connection: keep-alive'
+			cabecera = [codigo,fecha, servidor,tipo_contenido, longitud, '\r\n']#creamos una lista con los campos de la cabecera
+			separador= '\r\n'
+			cabecera = separador.join(cabecera)#Juntamos los campos de la cabecera
+			mensaje = cabecera + contenido
+
+		elif(self.version == 'HTTP/1.1'):
+
+			codigo = self.version + ' ' + '200 OK'
+			print codigo
+			format = "%A, %d-%b-%y %H:%M:%S"
+			fecha = 'Date: ' + datetime.datetime.today().strftime(format) + ' GMT'
+			servidor = 'Server: Python'
+			longitud = 'Content-lenght: ' + str(len(contenido))
+			conexion = 'Connection: keep-alive'
+			cabecera = [codigo,fecha, servidor,tipo_contenido, longitud, conexion,'\r\n']#creamos una lista con los campos de la cabecera
+			separador= '\r\n'
+			cabecera = separador.join(cabecera)#Juntamos los campos de la cabecera
+			mensaje = cabecera + contenido
+
+		return mensaje
+
+class HTTP1(HTTP):
+	def analizar_peticion(self, sock):
+		peticion = sock.recv(4096)
+		print 'peticion'
+		if not peticion:
+			print 'cadena vacia'
+		#print peticion
+		lista_peticion = peticion.splitlines()#Hacemos una lista con cada una de las lineas recibidas
+		metodo, url, version =lista_peticion[0].split()#Dividimos el primer string y guardamos cada campo en una variable
+		#En caso de no especificar el archivo se devuelve la página principal
+		if url == '/':
+			url = '/index.html'
+		return './index' + url #añadimos el ./index para indicar el directorio donde buscar
 
 if __name__ == "__main__":
 	timeout = 300
@@ -80,15 +117,22 @@ if __name__ == "__main__":
 				socket_list.append(sockfd)
 				print 'nueva conexion'
 			else:
-				recibido = sock.recv(4096)
-				print recibido
-				url = analizar_peticion(recibido)
-				#Recibimos una petición de un navegador, hay que responder
-				mensaje = generar_respuesta(url)
+				peticion = sock.recv(4096)
+				print peticion
+				
+				respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
+
+				#Generamos la respuesta a la petición
+				mensaje = respuesta.generar_respuesta()
 				#print mensaje
 				sock.send(mensaje)
-				socket_list.remove(sock)
-				sock.close()
+				if(respuesta.version == 'HTTP/1.0'):
+					socket_list.remove(sock)
+					sock.close()
+				#Lo suyo sería permitir conexiones persistentes al usar HTTP 1.1, pero no se completan las peticiones por algún motivo
+				elif(respuesta.version == 'HTTP/1.1'):
+					socket_list.remove(sock)
+					sock.close()
 
 		if not (read_sockets or write_sockets or error_sockets):
 			print 'Servidor web inactivo'
