@@ -9,8 +9,7 @@ class HTTP:
 
 	def __init__(self, peticion):
 
-		if not peticion:
-			print 'cadena vacia'
+		
 
 		lista_peticion = peticion.splitlines()#Hacemos una lista con cada una de las lineas recibidas
 		metodo, url, version =lista_peticion[0].split()#Dividimos el primer string y guardamos cada campo en una variable
@@ -101,12 +100,12 @@ if __name__ == "__main__":
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	port = int(sys.argv[1])
 	s.bind(("", port))
-	s.listen(5)
+	s.listen(20)
 	socket_list = [s]
 
 	while True:
 		print 'en select'
-		read_sockets, write_sockets, error_sockets = select.select(socket_list , [], [], timeout)
+		read_sockets, write_sockets, error_sockets = select.select(socket_list , [], socket_list, timeout)
 		print 'saliendo select'
 
 		for sock in read_sockets:
@@ -119,20 +118,25 @@ if __name__ == "__main__":
 			else:
 				peticion = sock.recv(4096)
 				print peticion
-				
-				respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
+				if not peticion:
+					print 'cadena vacia'
+					socket_list.remove(sock)
+					sock.close()
+				else:
+					respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
 
-				#Generamos la respuesta a la petición
-				mensaje = respuesta.generar_respuesta()
-				#print mensaje
-				sock.send(mensaje)
-				if(respuesta.version == 'HTTP/1.0'):
-					socket_list.remove(sock)
-					sock.close()
-				#Lo suyo sería permitir conexiones persistentes al usar HTTP 1.1, pero no se completan las peticiones por algún motivo
-				elif(respuesta.version == 'HTTP/1.1'):
-					socket_list.remove(sock)
-					sock.close()
+					#Generamos la respuesta a la petición
+					mensaje = respuesta.generar_respuesta()
+					#print mensaje
+					sock.send(mensaje)
+					if(respuesta.version == 'HTTP/1.0'):
+						socket_list.remove(sock)
+						sock.close()
+					#Lo suyo sería permitir conexiones persistentes al usar HTTP 1.1, pero no se completan las peticiones por algún motivo
+					if(respuesta.version == 'HTTP/1.1'):
+						socket_list.remove(sock)
+						sock.close()
+				
 
 		if not (read_sockets or write_sockets or error_sockets):
 			print 'Servidor web inactivo'
