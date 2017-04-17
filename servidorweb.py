@@ -3,7 +3,7 @@
 import socket, select, string, sys, json, datetime
 
 class HTTP:
-
+	#Prueba github
 	url = './index/index.html'
 	version = 'HTTP/1.0'
 
