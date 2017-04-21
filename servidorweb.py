@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
-import socket, select, string, sys, json, datetime
+import socket, select, string, sys, json, datetime, os
+import threading
 
 class HTTP:
 	#Prueba github
@@ -56,7 +57,8 @@ class HTTP:
 			format = "%A, %d-%b-%y %H:%M:%S"
 			fecha = 'Date: ' + datetime.datetime.today().strftime(format) + ' GMT'
 			servidor = 'Server: Python'
-			longitud = 'Content-lenght: ' + str(len(contenido))
+			#longitud = 'Content-length: ' + str(len(contenido))
+			longitud = 'Content-length: ' + str(os.path.getsize(self.url))
 			#conexion = 'Connection: keep-alive'
 			cabecera = [codigo,fecha, servidor,tipo_contenido, longitud, '\r\n']#creamos una lista con los campos de la cabecera
 			separador= '\r\n'
@@ -70,7 +72,8 @@ class HTTP:
 			format = "%A, %d-%b-%y %H:%M:%S"
 			fecha = 'Date: ' + datetime.datetime.today().strftime(format) + ' GMT'
 			servidor = 'Server: Python'
-			longitud = 'Content-lenght: ' + str(len(contenido))
+			#longitud = 'Content-length: ' + str(len(contenido))
+			longitud = 'Content-length: ' + str(os.path.getsize(self.url))
 			conexion = 'Connection: keep-alive\r\nKeep-Alive: timeout=5, max=1000'
 			cabecera = [codigo, rango, fecha, servidor,tipo_contenido, longitud, conexion,'\r\n']#creamos una lista con los campos de la cabecera
 			separador= '\r\n'
@@ -80,28 +83,33 @@ class HTTP:
 
 		return mensaje
 
-class HTTP1(HTTP):
-	def analizar_peticion(self, sock):
-		peticion = sock.recv(4096)
-		print 'peticion'
-		if not peticion:
-			print 'cadena vacia'
-		#print peticion
-		lista_peticion = peticion.splitlines()#Hacemos una lista con cada una de las lineas recibidas
-		metodo, url, version =lista_peticion[0].split()#Dividimos el primer string y guardamos cada campo en una variable
-		#En caso de no especificar el archivo se devuelve la página principal
-		if url == '/':
-			url = '/index.html'
-		return './index' + url #añadimos el ./index para indicar el directorio donde buscar
+def worker(sock):
+	peticion = sock.recv(4096)
+	print peticion
 
+	if not peticion:
+		print 'cadena vacia'
+		socket_list.remove(sock)
+		sock.close()
+	else:
+		respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
+		#Generamos la respuesta a la petición
+		mensaje = respuesta.generar_respuesta()
+		#print mensaje
+		sock.send(mensaje)
+		if(respuesta.version == 'HTTP/1.0'):
+			socket_list.remove(sock)
+			sock.close()
+	return
+
+socket_list = []
 if __name__ == "__main__":
 	timeout = 300
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	port = int(sys.argv[1])
 	s.bind(("", port))
 	s.listen(20)
-	socket_list = [s]
-
+	socket_list.append(s)
 	while True:
 		print 'en select'
 		read_sockets, write_sockets, error_sockets = select.select(socket_list , [], socket_list, timeout)
@@ -115,28 +123,10 @@ if __name__ == "__main__":
 				#sockfd.setblocking(0)
 				socket_list.append(sockfd)
 				print 'nueva conexion'
-				
+		
 			else:
-				peticion = sock.recv(4096)
-				print peticion
-				if not peticion:
-					print 'cadena vacia'
-					socket_list.remove(sock)
-					sock.close()
-				else:
-					respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
-
-					#Generamos la respuesta a la petición
-					mensaje = respuesta.generar_respuesta()
-					#print mensaje
-					sock.send(mensaje)
-					if(respuesta.version == 'HTTP/1.0'):
-						socket_list.remove(sock)
-						sock.close()
-					#Lo suyo sería permitir conexiones persistentes al usar HTTP 1.1, pero no se completan las peticiones por algún motivo
-					if(respuesta.version == 'HTTP/1.1'):
-						socket_list.remove(sock)
-						sock.close()
+				t = threading.Thread(target=worker, args=(sock,))
+				t.start()
 				
 
 		if not (read_sockets or write_sockets or error_sockets):
