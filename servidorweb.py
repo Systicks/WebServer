@@ -101,9 +101,10 @@ def worker(sock):
 		mutex.release()
 		respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
 		#Generamos la respuesta a la petición
-		mensaje = respuesta.generar_respuesta()
+		cabecera, cuerpo = respuesta.generar_respuesta()
 		#print mensaje
-		sock.send(mensaje)
+		sock.send(cabecera)
+		sock.send(cuerpo)
 		if(respuesta.version == 'HTTP/1.0'):
 			mutex.acquire()
 			socket_list.remove(sock)
@@ -239,10 +240,10 @@ class HTTP:
 		#Juntamos los campos de la cabecera separados por un salto de línea
 		separador= '\r\n'
 		cabecera = separador.join(cabecera)
-		mensaje = cabecera + contenido
+		#mensaje = cabecera + contenido
 		print cabecera
 	
-		return mensaje
+		return cabecera, contenido
 
 
 if __name__ == "__main__":
