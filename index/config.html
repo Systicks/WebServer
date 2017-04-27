@@ -41,7 +41,7 @@
       <div id="Sensores">
         <h2>Datos de la habitación</h2>
 
-        <form class= "config" oninput="x.value=parseInt(tempmax.value)-parseInt(tempmin.value)">
+        <form method='POST' class= "config" oninput="x.value=parseInt(tempmax.value)-parseInt(tempmin.value)">
          País: <input list="Paises" id="pais" onblur="validarpais()" onchange="loadDoc()">
           <datalist id="Paises">
             <option value="España">

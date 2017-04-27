@@ -13,12 +13,12 @@ RESET_CONTENT = '205 Reset Content'
 PARTIAL_CONTENT = '206 Partial Content'
 
 # redirection
-MULTIPLE_CHOICES = 300
-MOVED_PERMANENTLY = 301
-FOUND = 302
-SEE_OTHER = 303
-NOT_MODIFIED = 304
-USE_PROXY = 305
+MULTIPLE_CHOICES = '300 Multiple Choices'
+MOVED_PERMANENTLY = '301 Moved Permanently'
+FOUND = '302 Found'
+SEE_OTHER = '303 See Other'
+NOT_MODIFIED = '304 Not Modified'
+USE_PROXY = '305 Use Proxy'
 TEMPORARY_REDIRECT = 307
 
 # client error
