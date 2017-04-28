@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
-import socket, select, string, sys, json, datetime, os
+import socket, select, string, sys, json, datetime, os, argparse
 import threading
 
 #Introducir la ruta de favicon.ico y de index.html
 path_favicon = '/images/icon.ico'
 path_index = '/index.html'
-
+#Tiempo en segundos para el mensaje de timeout
+TIMEOUT = 300
 # successful
 OK = '200 OK'
 CREATED = '201 Created'
@@ -58,42 +59,112 @@ socket_list = []
 mutex = threading.Lock()
 
 def main():
+	#Obtenemos las opciones mediante argparse
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-p",help="Asignar el puerto", type = int, default=8000)
+	parser.add_argument("-t", help="Activar multithreading", action='store_true' , default=False)
+	args = parser.parse_args()
+	if args.p:
+		port=int(args.p)
+	if args.t:
+		multithreading = True
+	else:
+		multithreading = False
 
-	timeout = 300
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	port = int(sys.argv[1])
 	s.bind(("", port))
 	s.listen(20)
 	socket_list.append(s)
-	while True:
 
-		read_sockets, write_sockets, error_sockets = select.select(socket_list , [], socket_list, timeout)
+	#Se ejecuta un bucle u otro si hemos decidido usar multithreading
+	if multithreading == True:
 
-		for sock in error_sockets:
-			print 'Error en socket'
-		for sock in read_sockets:
-			if sock == s:
-				#se recibe una peticion por el socket de escucha, lo aceptamos y lo añadimos a la lista de sockets
-				sockfd, addr = s.accept()
-				socket_list.append(sockfd)
-				print 'nueva conexion'
-		
-			else:
-				#Eliminamos el socket de la lista para que dos hilos no puedan atender la misma petición usando exclusión mutua
-				mutex.acquire()
-				socket_list.remove(sock)
-				mutex.release()
-				t = threading.Thread(target=worker, args=(sock,))
-				print socket_list
-				t.start()
+		while True:
+			read_sockets, write_sockets, error_sockets = select.select(socket_list , [], socket_list, TIMEOUT)
+			for sock in error_sockets:
+				print 'Error en socket'
+			for sock in read_sockets:
+				if sock == s:
+					#se recibe una peticion por el socket de escucha, lo aceptamos y lo añadimos a la lista de sockets
+					sockfd, addr = s.accept()
+					socket_list.append(sockfd)
+					print 'nueva conexion'
+			
+				else:
+					#Eliminamos el socket de la lista para que dos hilos no puedan atender la misma petición usando exclusión mutua
+					mutex.acquire()
+					socket_list.remove(sock)
+					mutex.release()
+					t = threading.Thread(target=lectura_socket_hilos, args=(sock,))
+					print socket_list
+					t.start()
 
-		if not (read_sockets or write_sockets or error_sockets):
-			print 'Servidor web inactivo'
+			if not (read_sockets or write_sockets or error_sockets):
+				print 'Servidor web inactivo'
+	#Sin multithreading:
+	else:
+
+		while True:
+			read_sockets, write_sockets, error_sockets = select.select(socket_list , [], socket_list, TIMEOUT)
+			for sock in error_sockets:
+				print 'Error en socket'
+			for sock in read_sockets:
+				if sock == s:
+					#se recibe una peticion por el socket de escucha, lo aceptamos y lo añadimos a la lista de sockets
+					sockfd, addr = s.accept()
+					socket_list.append(sockfd)
+					print 'nueva conexion'
+
+				else:
+					lectura_socket(sock)
+
+			if not (read_sockets or write_sockets or error_sockets):
+				print 'Servidor web inactivo'
 
 	s.close()
 
-#Función ejecutada por los hilos
-def worker(sock):
+#Función para la lectura del socket
+def lectura_socket(sock):
+
+	peticion = sock.recv(4096)
+	print peticion
+	if not peticion:
+		print 'cadena vacia'
+		socket_list.remove(sock)
+		sock.close()
+	else:
+		respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
+		#Si el método es GET:
+		if respuesta.get_metodo() == 'GET':
+			#Generamos la respuesta a la petición
+			cabecera, cuerpo = respuesta.generar_respuesta()
+			#print mensaje
+			sock.send(cabecera)
+			sock.send(cuerpo)
+		#Si el método es HEAD solo enviamos la cabecera
+		elif respuesta.get_metodo() == 'HEAD':
+			cabecera = respuesta.generar_respuesta()
+			sock.send(cabecera)
+		#Si se trata de un post recibimos el contenido y lo guardamos
+		elif respuesta.get_metodo() == 'POST':
+			print 'Es un post'
+			respuesta.guardar_post(peticion)#Metodo que guarda el post
+			cabecera, cuerpo = respuesta.generar_respuesta()
+			sock.send(cabecera)
+			sock.send(cuerpo)
+		#Cualquier otro método devolvemos solo una cabecera infirmando con el error
+		else:
+			cabecera = respuesta.generar_respuesta()
+			sock.send(cabecera)
+
+		if(respuesta.version == 'HTTP/1.0'):
+			socket_list.remove(sock)
+			sock.close()
+
+	return
+
+#Función ejecutada por los hilos si usamos multithreading
+def lectura_socket_hilos(sock):
 
 	peticion = sock.recv(4096)
 	print peticion
@@ -101,9 +172,6 @@ def worker(sock):
 		print 'cadena vacia'
 		sock.close()
 	else:
-		mutex.acquire()#En exclusión mutua volvemos a añadir el socket a la lista para que se vuelvan a atender sus peticiones
-		socket_list.append(sock)
-		mutex.release()
 		respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
 
 		#Si el método es GET:
@@ -133,6 +201,12 @@ def worker(sock):
 			socket_list.remove(sock)
 			mutex.release()
 			sock.close()
+
+		#En exclusión mutua volvemos a añadir el socket a la lista para que se vuelvan a atender sus peticiones
+		mutex.acquire()
+		socket_list.append(sock)
+		mutex.release()
+
 	return
 
 #Clase que define los métodos y constructor que analizan la petición y generan la respuesta
@@ -238,8 +312,10 @@ class HTTP:
 		format = "%A, %d-%b-%y %H:%M:%S"
 		fecha = 'Date: ' + datetime.datetime.today().strftime(format) + ' GMT'
 		servidor = 'Server: Python'
+		cache = 'Cache-Control: public, max-age=3'#max-age, tiempo en segundos (3 segundos para pruebas)
 		rango = ''
 		tipo_contenido = ''
+		longitud = ''
 		#Campos que son distintos en diferentes versiones de HTTP:
 		if(self.version == 'HTTP/1.0'):
 			conexion = ''
@@ -252,18 +328,23 @@ class HTTP:
 			codigo = HTTP_VERSION_NOT_SUPPORTED
 
 		#Campos que dependen del método:
+		#Método GET, devolvemos el objeto que se nos pide
 		if self.metodo == 'GET':
 			#Empezamos a crear los campos de la cabecera y a insertarlos:
 			tipo_contenido = self.extension()#Devuelve el tipo de contenido
 			codigo, contenido, longitud = self.leer_archivo()#Abrimos el archivo y nos devuelve el código correspondiente y el contenido y la longitud
 			rango = 'Accept-Ranges: bytes'
-			
+		#Método HEAD, devolvemos solo la cabecera
 		elif self.metodo == 'HEAD':
-			tipo_contenido = self.extension()#Devuelve el tipo de contenido
-			codigo, contenido, longitud = self.leer_archivo()#Abrimos el archivo y nos devuelve el código correspondiente, el contenido y la longitud
-
+			tipo_contenido = self.extension()
+			codigo, contenido, longitud = self.leer_archivo()
+		#Método POST, mandamos el código OK si se han podido guardar los datos y enviamos la página nuevamente
 		elif self.metodo == 'POST':
 			codigo = self.post
+			tipo_contenido = self.extension()
+			codigo, contenido, longitud = self.leer_archivo()
+			rango = 'Accept-Ranges: bytes'
+
 		elif self.metodo == 'PUT':
 			codigo = NOT_IMPLEMENTED
 		elif self.metodo == 'OPTIONS':
@@ -279,7 +360,7 @@ class HTTP:
 
 		estado = self.version + ' ' + codigo
 		#Construcción de la cabecera con todos los campos incluidos:
-		cabecera = [estado, rango, fecha, servidor,tipo_contenido, longitud,conexion,'\r\n']#creamos una lista con los campos de la cabecera
+		cabecera = [estado, rango, fecha, servidor,tipo_contenido, cache, longitud, conexion, '\r\n']#creamos una lista con los campos de la cabecera
 		#Quitamos los campos vacíos de la cabecera (si es http 1.1 conexión estará vacío)
 		for campo in cabecera:
 			if campo == '':
@@ -297,7 +378,7 @@ class HTTP:
 		elif self.metodo == 'HEAD':
 			return cabecera
 		elif self.metodo == 'POST':
-			return cabecera
+			return cabecera, contenido
 		else:
 			return cabecera
 
