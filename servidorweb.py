@@ -3,6 +3,10 @@
 import socket, select, string, sys, json, datetime, os
 import threading
 
+#Introducir la ruta de favicon.ico y de index.html
+path_favicon = '/images/icon.ico'
+path_index = '/index.html'
+
 # successful
 OK = '200 OK'
 CREATED = '201 Created'
@@ -42,7 +46,7 @@ REQUESTED_RANGE_NOT_SATISFIABLE = 416
 EXPECTATION_FAILED = 417
 
 # server error
-INTERNAL_SERVER_ERROR = 500
+INTERNAL_SERVER_ERROR = '500 Internal Server Error'
 NOT_IMPLEMENTED = '501 Not Implemented'
 BAD_GATEWAY = 502
 SERVICE_UNAVAILABLE = 503
@@ -90,6 +94,7 @@ def main():
 
 #Función ejecutada por los hilos
 def worker(sock):
+
 	peticion = sock.recv(4096)
 	print peticion
 	if not peticion:
@@ -100,11 +105,29 @@ def worker(sock):
 		socket_list.append(sock)
 		mutex.release()
 		respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
-		#Generamos la respuesta a la petición
-		cabecera, cuerpo = respuesta.generar_respuesta()
-		#print mensaje
-		sock.send(cabecera)
-		sock.send(cuerpo)
+
+		#Si el método es GET:
+		if respuesta.get_metodo() == 'GET':
+			#Generamos la respuesta a la petición
+			cabecera, cuerpo = respuesta.generar_respuesta()
+			#print mensaje
+			sock.send(cabecera)
+			sock.send(cuerpo)
+		#Si el método es HEAD solo enviamos la cabecera
+		elif respuesta.get_metodo() == 'HEAD':
+			cabecera = respuesta.generar_respuesta()
+			sock.send(cabecera)
+		#Si se trata de un post recibimos el contenido y lo guardamos
+		elif respuesta.get_metodo() == 'POST':
+			print 'Es un post'
+			respuesta.guardar_post(peticion)#Metodo que guarda el post
+			cabecera = respuesta.generar_respuesta()
+			sock.send(cabecera)
+		#Cualquier otro método devolvemos solo una cabecera infirmando con el error
+		else:
+			cabecera = respuesta.generar_respuesta()
+			sock.send(cabecera)
+
 		if(respuesta.version == 'HTTP/1.0'):
 			mutex.acquire()
 			socket_list.remove(sock)
@@ -120,22 +143,44 @@ class HTTP:
 	version = 'HTTP/1.0'
 	metodo = ''
 	NotFound = './index/404.html'
-
+	longitud = 0
+	post = OK
 	#Métodos
 	#Constructor
 	def __init__(self, peticion):
 
 		lista_peticion = peticion.splitlines()#Hacemos una lista con cada una de las lineas recibidas
 		metodo, url, version =lista_peticion[0].split()#Dividimos el primer string y guardamos cada campo en una variable
+		lista_peticion.pop(0)
+		#Obtenemos el resto de campos que nos interesen de la petición:
+		for linea in lista_peticion:
+			titulo = linea.split(':')
+			if titulo[0] == 'Content-Length':
+				self.longitud = titulo [1]
+
 		#En caso de no especificar el archivo se devuelve la página principal
 		if url == '/':
-			url = '/index.html'
+			url = path_index
 		elif url == '/favicon.ico':
-			url = '/images/icon.ico'
+			url = path_favicon
 		
 		self.version = version
 		self.url = './index' + url #añadimos el ./index para indicar el directorio donde buscar
 		self.metodo = metodo
+
+	#Devuelve el método que se está usando
+	def get_metodo(self):
+		return self.metodo
+
+	#Guarda el contenido de una petición POST
+	def guardar_post(self, peticion):
+		datos = peticion.split('\r\n\r\n')
+		try:
+			archivo = open('./index/forms/' + str(datetime.datetime.today()), "w")
+			archivo.write(datos[1])
+		except IOError:
+			print 'Error al crear el archivo'
+			self.post = INTERNAL_SERVER_ERROR
 
 	#Análisis de la extensión del archivo, se genera el campo Content-type
 	def extension(self):
@@ -193,7 +238,8 @@ class HTTP:
 		format = "%A, %d-%b-%y %H:%M:%S"
 		fecha = 'Date: ' + datetime.datetime.today().strftime(format) + ' GMT'
 		servidor = 'Server: Python'
-
+		rango = ''
+		tipo_contenido = ''
 		#Campos que son distintos en diferentes versiones de HTTP:
 		if(self.version == 'HTTP/1.0'):
 			conexion = ''
@@ -213,9 +259,11 @@ class HTTP:
 			rango = 'Accept-Ranges: bytes'
 			
 		elif self.metodo == 'HEAD':
-			codigo = NOT_IMPLEMENTED
+			tipo_contenido = self.extension()#Devuelve el tipo de contenido
+			codigo, contenido, longitud = self.leer_archivo()#Abrimos el archivo y nos devuelve el código correspondiente, el contenido y la longitud
+
 		elif self.metodo == 'POST':
-			codigo = NOT_IMPLEMENTED
+			codigo = self.post
 		elif self.metodo == 'PUT':
 			codigo = NOT_IMPLEMENTED
 		elif self.metodo == 'OPTIONS':
@@ -242,8 +290,16 @@ class HTTP:
 		cabecera = separador.join(cabecera)
 		#mensaje = cabecera + contenido
 		print cabecera
-	
-		return cabecera, contenido
+		
+		#Dependiendo del método empleado se devuelven distintas cosas:
+		if self.metodo == 'GET':
+			return cabecera, contenido
+		elif self.metodo == 'HEAD':
+			return cabecera
+		elif self.metodo == 'POST':
+			return cabecera
+		else:
+			return cabecera
 
 
 if __name__ == "__main__":
