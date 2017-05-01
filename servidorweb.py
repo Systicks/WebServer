@@ -47,7 +47,7 @@ def main():
 	if args.p:
 		port=int(args.p)
 	if args.t:
-		multithreading = True
+		multithreading = args.t
 	else:
 		multithreading = False
 
@@ -58,15 +58,7 @@ def main():
 
 	#Se ejecuta un bucle u otro si hemos decidido usar multithreading
 	if multithreading == True:
-		'''
-		threads = []
-		for i in range(2):
-			t = threading.Thread(target=lectura_socket_hilos, args=(s,))
-			threads.append(t)
-			t.start()
-		for t in threads:
-			t.join()
-		'''
+
 		while True:
 			read_sockets, write_sockets, error_sockets = select.select(socket_list , [], socket_list, TIMEOUT)
 			for sock in error_sockets:
@@ -112,7 +104,6 @@ def main():
 
 			if not (read_sockets or write_sockets or error_sockets):
 				print 'Servidor web inactivo'
-	print 'A tomar por culo'
 
 	s.close()
 
@@ -155,77 +146,7 @@ def lectura_socket(sock):
 			sock.close()
 
 	return
-'''
-#Función ejecutada por los hilos si usamos multithreading
-def lectura_socket_hilos(s):
 
-	while True:
-			#Solo un hilo puede esperar a leer los sockets a la vez
-			mutex.acquire()
-			read_sockets, write_sockets, error_sockets = select.select(socket_list , [], socket_list, TIMEOUT)
-			mutex.release()
-
-			for sock in error_sockets:
-				print 'Error en socket'
-
-			for sock in read_sockets:
-				print 'Hilo:' + threading.currentThread().getName() + 'Atendiendo: ' + str(sock)
-				if sock == s:
-					#se recibe una peticion por el socket de escucha, lo aceptamos y lo añadimos a la lista de sockets
-					sockfd, addr = s.accept()
-					socket_list.append(sockfd)
-					print 'nueva conexion'
-			
-				else:
-					#Eliminamos el socket de la lista para que dos hilos no puedan atender la misma petición usando exclusión mutua
-					peticion = sock.recv(4096)
-					print peticion
-					#Si se recibe una cadena vacía se ha cerrado el socket y hay que eliminarlo de la lista
-					if not peticion:
-						mutex.acquire()
-						socket_list.remove(sock)
-						mutex.release()
-						print 'cadena vacia'
-						sock.close()
-
-					else:
-						respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
-
-						#Si el método es GET:
-						if respuesta.get_metodo() == 'GET':
-							#Generamos la respuesta a la petición
-							cabecera, cuerpo = respuesta.generar_respuesta()
-							#print mensaje
-							sock.send(cabecera)
-							sock.send(cuerpo)
-						#Si el método es HEAD solo enviamos la cabecera
-						elif respuesta.get_metodo() == 'HEAD':
-							cabecera = respuesta.generar_respuesta()
-							sock.send(cabecera)
-						#Si se trata de un post recibimos el contenido y lo guardamos
-						elif respuesta.get_metodo() == 'POST':
-							print 'Es un post'
-							respuesta.guardar_post(peticion)#Metodo que guarda el post
-							cabecera = respuesta.generar_respuesta()
-							sock.send(cabecera)
-						#Cualquier otro método devolvemos solo una cabecera infirmando con el error
-						else:
-							cabecera = respuesta.generar_respuesta()
-							sock.send(cabecera)
-
-						if(respuesta.version == 'HTTP/1.0'):
-							mutex.acquire()
-							socket_list.remove(sock)
-							mutex.release()
-							sock.close()
-
-			if not (read_sockets or write_sockets or error_sockets):
-				print 'Servidor web inactivo'
-
-	#print 'Hilo:' + threading.currentThread().getName()
-
-	return
-'''
 #Función ejecutada por los hilos si usamos multithreading
 def lectura_socket_hilos(sock):
 	try:
@@ -379,7 +300,8 @@ class HTTP:
 			contenido = archivo.read()
 			archivo.close()
 			longitud = 'Content-length: ' + str(os.path.getsize(self.NotFound))
-			return codigo, contenido, longitud
+			modificado = 'Last-Modified: ' + time.ctime(os.path.getmtime(self.url))
+			return codigo, contenido, longitud, modificado
 
 		contenido = archivo.read()
 		archivo.close()
@@ -400,7 +322,6 @@ class HTTP:
 		rango = ''
 		tipo_contenido = ''
 		longitud = ''
-		modificaco = ''
 		#Campos que son distintos en diferentes versiones de HTTP:
 		if(self.version == 'HTTP/1.0'):
 			conexion = ''
