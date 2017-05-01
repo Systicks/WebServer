@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
-import socket, select, string, sys, json, datetime, os, argparse
+import socket, select, string, sys, json, datetime, os, argparse, time
 import threading
 
 #Introducir la ruta de favicon.ico y de index
@@ -81,7 +81,10 @@ def main():
 				else:
 					#Eliminamos el socket de la lista para que dos hilos no puedan atender la misma petición usando exclusión mutua
 					mutex.acquire()
-					socket_list.remove(sock)
+					try:
+						socket_list.remove(sock)
+					except:
+						print 'El socket ya ha sido eliminado'
 					mutex.release()
 					t = threading.Thread(target=lectura_socket_hilos, args=(sock,))
 					print socket_list
@@ -225,8 +228,11 @@ def lectura_socket_hilos(s):
 '''
 #Función ejecutada por los hilos si usamos multithreading
 def lectura_socket_hilos(sock):
-
-	peticion = sock.recv(4096)
+	try:
+		peticion = sock.recv(4096)
+	except:
+		print 'Error en la recepción'
+		return
 	#En exclusión mutua volvemos a añadir el socket a la lista para que se vuelvan a atender sus peticiones
 	mutex.acquire()
 	socket_list.append(sock)
@@ -235,7 +241,12 @@ def lectura_socket_hilos(sock):
 	if not peticion:
 		print 'cadena vacia'
 		mutex.acquire()
-		socket_list.append(sock)
+		try:
+			socket_list.remove(sock)
+		except:
+			print 'El socket ya ha sido eliminado'
+			mutex.release()
+			return
 		mutex.release()
 		sock.close()
 	else:
@@ -256,8 +267,9 @@ def lectura_socket_hilos(sock):
 		elif respuesta.get_metodo() == 'POST':
 			print 'Es un post'
 			respuesta.guardar_post(peticion)#Metodo que guarda el post
-			cabecera = respuesta.generar_respuesta()
+			cabecera, cuerpo = respuesta.generar_respuesta()
 			sock.send(cabecera)
+			sock.send(cuerpo)
 		#Cualquier otro método devolvemos solo una cabecera infirmando con el error
 		else:
 			cabecera = respuesta.generar_respuesta()
@@ -373,8 +385,9 @@ class HTTP:
 		archivo.close()
 		codigo =  OK
 		longitud = 'Content-length: ' + str(os.path.getsize(self.url))
+		modificado = 'Last-Modified: ' + time.ctime(os.path.getmtime(self.url))
 
-		return codigo, contenido, longitud
+		return codigo, contenido, longitud, modificado
 
 	def generar_respuesta(self):
 		
@@ -383,9 +396,11 @@ class HTTP:
 		fecha = 'Date: ' + datetime.datetime.today().strftime(format) + ' GMT'
 		servidor = 'Server: Python'
 		cache = 'Cache-Control: public, max-age=3'#max-age, tiempo en segundos (3 segundos para pruebas)
+		#cache = 'Cache-Control: no-cache'
 		rango = ''
 		tipo_contenido = ''
 		longitud = ''
+		modificaco = ''
 		#Campos que son distintos en diferentes versiones de HTTP:
 		if(self.version == 'HTTP/1.0'):
 			conexion = ''
@@ -402,17 +417,17 @@ class HTTP:
 		if self.metodo == 'GET':
 			#Empezamos a crear los campos de la cabecera y a insertarlos:
 			tipo_contenido = self.extension()#Devuelve el tipo de contenido
-			codigo, contenido, longitud = self.leer_archivo()#Abrimos el archivo y nos devuelve el código correspondiente y el contenido y la longitud
+			codigo, contenido, longitud, modificado = self.leer_archivo()#Abrimos el archivo y nos devuelve el código correspondiente y el contenido y la longitud
 			rango = 'Accept-Ranges: bytes'
 		#Método HEAD, devolvemos solo la cabecera
 		elif self.metodo == 'HEAD':
 			tipo_contenido = self.extension()
-			codigo, contenido, longitud = self.leer_archivo()
+			codigo, contenido, longitud, modificado = self.leer_archivo()
 		#Método POST, mandamos el código OK si se han podido guardar los datos y enviamos la página nuevamente
 		elif self.metodo == 'POST':
 			codigo = self.post
 			tipo_contenido = self.extension()
-			codigo, contenido, longitud = self.leer_archivo()
+			codigo, contenido, longitud, modificado = self.leer_archivo()
 			rango = 'Accept-Ranges: bytes'
 
 		elif self.metodo == 'PUT':
@@ -430,7 +445,7 @@ class HTTP:
 
 		estado = self.version + ' ' + codigo
 		#Construcción de la cabecera con todos los campos incluidos:
-		cabecera = [estado, rango, fecha, servidor,tipo_contenido, cache, longitud, conexion, '\r\n']#creamos una lista con los campos de la cabecera
+		cabecera = [estado, rango, fecha, servidor,tipo_contenido, cache, longitud, conexion, modificado, '\r\n']#creamos una lista con los campos de la cabecera
 		#Quitamos los campos vacíos de la cabecera (si es http 1.1 conexión estará vacío)
 		for campo in cabecera:
 			if campo == '':
