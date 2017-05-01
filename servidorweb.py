@@ -229,7 +229,7 @@ class HTTP:
 
 		#En caso de no especificar el archivo se devuelve la página principal
 		if url == '/':
-			url = 'index.html'
+			url = '/index.html'
 		elif url == '/favicon.ico':
 			url = path_favicon
 
@@ -300,7 +300,7 @@ class HTTP:
 			contenido = archivo.read()
 			archivo.close()
 			longitud = 'Content-length: ' + str(os.path.getsize(self.NotFound))
-			modificado = 'Last-Modified: ' + time.ctime(os.path.getmtime(self.url))
+			modificado = 'Last-Modified: ' + time.ctime(os.path.getmtime(self.NotFound))
 			return codigo, contenido, longitud, modificado
 
 		contenido = archivo.read()
