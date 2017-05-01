@@ -3,9 +3,9 @@
 import socket, select, string, sys, json, datetime, os, argparse
 import threading
 
-#Introducir la ruta de favicon.ico y de index.html
+#Introducir la ruta de favicon.ico y de index
 path_favicon = '/images/icon.ico'
-path_index = '/index.html'
+path_index = './'
 #Tiempo en segundos para el mensaje de timeout
 TIMEOUT = 300
 # successful
@@ -78,7 +78,15 @@ def main():
 
 	#Se ejecuta un bucle u otro si hemos decidido usar multithreading
 	if multithreading == True:
-
+		'''
+		threads = []
+		for i in range(2):
+			t = threading.Thread(target=lectura_socket_hilos, args=(s,))
+			threads.append(t)
+			t.start()
+		for t in threads:
+			t.join()
+		'''
 		while True:
 			read_sockets, write_sockets, error_sockets = select.select(socket_list , [], socket_list, TIMEOUT)
 			for sock in error_sockets:
@@ -101,6 +109,7 @@ def main():
 
 			if not (read_sockets or write_sockets or error_sockets):
 				print 'Servidor web inactivo'
+
 	#Sin multithreading:
 	else:
 
@@ -120,6 +129,7 @@ def main():
 
 			if not (read_sockets or write_sockets or error_sockets):
 				print 'Servidor web inactivo'
+	print 'A tomar por culo'
 
 	s.close()
 
@@ -162,14 +172,91 @@ def lectura_socket(sock):
 			sock.close()
 
 	return
+'''
+#Función ejecutada por los hilos si usamos multithreading
+def lectura_socket_hilos(s):
 
+	while True:
+			#Solo un hilo puede esperar a leer los sockets a la vez
+			mutex.acquire()
+			read_sockets, write_sockets, error_sockets = select.select(socket_list , [], socket_list, TIMEOUT)
+			mutex.release()
+
+			for sock in error_sockets:
+				print 'Error en socket'
+
+			for sock in read_sockets:
+				print 'Hilo:' + threading.currentThread().getName() + 'Atendiendo: ' + str(sock)
+				if sock == s:
+					#se recibe una peticion por el socket de escucha, lo aceptamos y lo añadimos a la lista de sockets
+					sockfd, addr = s.accept()
+					socket_list.append(sockfd)
+					print 'nueva conexion'
+			
+				else:
+					#Eliminamos el socket de la lista para que dos hilos no puedan atender la misma petición usando exclusión mutua
+					peticion = sock.recv(4096)
+					print peticion
+					#Si se recibe una cadena vacía se ha cerrado el socket y hay que eliminarlo de la lista
+					if not peticion:
+						mutex.acquire()
+						socket_list.remove(sock)
+						mutex.release()
+						print 'cadena vacia'
+						sock.close()
+
+					else:
+						respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
+
+						#Si el método es GET:
+						if respuesta.get_metodo() == 'GET':
+							#Generamos la respuesta a la petición
+							cabecera, cuerpo = respuesta.generar_respuesta()
+							#print mensaje
+							sock.send(cabecera)
+							sock.send(cuerpo)
+						#Si el método es HEAD solo enviamos la cabecera
+						elif respuesta.get_metodo() == 'HEAD':
+							cabecera = respuesta.generar_respuesta()
+							sock.send(cabecera)
+						#Si se trata de un post recibimos el contenido y lo guardamos
+						elif respuesta.get_metodo() == 'POST':
+							print 'Es un post'
+							respuesta.guardar_post(peticion)#Metodo que guarda el post
+							cabecera = respuesta.generar_respuesta()
+							sock.send(cabecera)
+						#Cualquier otro método devolvemos solo una cabecera infirmando con el error
+						else:
+							cabecera = respuesta.generar_respuesta()
+							sock.send(cabecera)
+
+						if(respuesta.version == 'HTTP/1.0'):
+							mutex.acquire()
+							socket_list.remove(sock)
+							mutex.release()
+							sock.close()
+
+			if not (read_sockets or write_sockets or error_sockets):
+				print 'Servidor web inactivo'
+
+	#print 'Hilo:' + threading.currentThread().getName()
+
+	return
+'''
 #Función ejecutada por los hilos si usamos multithreading
 def lectura_socket_hilos(sock):
 
 	peticion = sock.recv(4096)
+	#En exclusión mutua volvemos a añadir el socket a la lista para que se vuelvan a atender sus peticiones
+	mutex.acquire()
+	socket_list.append(sock)
+	mutex.release()
 	print peticion
 	if not peticion:
 		print 'cadena vacia'
+		mutex.acquire()
+		socket_list.append(sock)
+		mutex.release()
 		sock.close()
 	else:
 		respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
@@ -202,11 +289,6 @@ def lectura_socket_hilos(sock):
 			mutex.release()
 			sock.close()
 
-		#En exclusión mutua volvemos a añadir el socket a la lista para que se vuelvan a atender sus peticiones
-		mutex.acquire()
-		socket_list.append(sock)
-		mutex.release()
-
 	return
 
 #Clase que define los métodos y constructor que analizan la petición y generan la respuesta
@@ -234,12 +316,18 @@ class HTTP:
 
 		#En caso de no especificar el archivo se devuelve la página principal
 		if url == '/':
-			url = path_index
+			url = 'index.html'
 		elif url == '/favicon.ico':
 			url = path_favicon
-		
+
+		#En caso de que la petición contenga datos en la URL los tenemos en cuenta
+		try:
+			url, datos = url.split('?')
+		except:
+			url = url
+
 		self.version = version
-		self.url = './index' + url #añadimos el ./index para indicar el directorio donde buscar
+		self.url = path_index + 'index' + url #añadimos el ./index para indicar el directorio donde buscar
 		self.metodo = metodo
 
 	#Devuelve el método que se está usando
@@ -280,8 +368,10 @@ class HTTP:
 			tipo_contenido = 'Content-type: video/webm'
 		elif extension == 'appcache':
 			tipo_contenido = 'Content-type: text/cache-manifes'
-		else:
+		elif extension == 'http':
 			tipo_contenido = 'Content-type: text/html; charset=UTF-8'
+		else:
+			tipo_contenido = 'Content-type: text; charset=UTF-8'
 		#Insertamos este campo en la cabecera
 		return tipo_contenido
 
