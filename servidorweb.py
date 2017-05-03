@@ -8,6 +8,8 @@ path_favicon = '/images/icon.ico'
 path_index = './'
 #Tiempo en segundos para el mensaje de timeout
 TIMEOUT = 300
+
+#Definiciones de códigos de error
 # successful
 OK = '200 OK'
 CREATED = '201 Created'
@@ -50,7 +52,7 @@ def main():
 		multithreading = args.t
 	else:
 		multithreading = False
-
+	#Creación del socket principal y establecimiento del puerto
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.bind(("", port))
 	s.listen(20)
@@ -78,10 +80,11 @@ def main():
 					except:
 						print 'El socket ya ha sido eliminado'
 					mutex.release()
+					#Creación del hilo y llamada a la función que atiende
 					t = threading.Thread(target=lectura_socket_hilos, args=(sock,))
 					print socket_list
 					t.start()
-
+			#Mensaje de servidor inactivo
 			if not (read_sockets or write_sockets or error_sockets):
 				print 'Servidor web inactivo'
 
@@ -100,8 +103,9 @@ def main():
 					print 'nueva conexion'
 
 				else:
+					#Llamada a la función que se encarga de atender la petición
 					lectura_socket(sock)
-
+			#Mensaje de servidor inactivo
 			if not (read_sockets or write_sockets or error_sockets):
 				print 'Servidor web inactivo'
 
@@ -109,20 +113,22 @@ def main():
 
 #Función para la lectura del socket
 def lectura_socket(sock):
-
+	#Recepción de la petición
 	peticion = sock.recv(4096)
 	print peticion
+	#En caso de que sea una cadena vacía se cierra el socket
 	if not peticion:
 		print 'cadena vacia'
 		socket_list.remove(sock)
 		sock.close()
 	else:
-		respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
+		#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
+		respuesta = HTTP (peticion)
 		#Si el método es GET:
 		if respuesta.get_metodo() == 'GET':
 			#Generamos la respuesta a la petición
 			cabecera, cuerpo = respuesta.generar_respuesta()
-			#print mensaje
+			#Enviamos la respuesta
 			sock.send(cabecera)
 			sock.send(cuerpo)
 		#Si el método es HEAD solo enviamos la cabecera
@@ -140,7 +146,7 @@ def lectura_socket(sock):
 		else:
 			cabecera = respuesta.generar_respuesta()
 			sock.send(cabecera)
-
+		#En caso de que la versión empleada sea 1.0 cerramos el socket después de cada petición
 		if(respuesta.version == 'HTTP/1.0'):
 			socket_list.remove(sock)
 			sock.close()
@@ -149,6 +155,7 @@ def lectura_socket(sock):
 
 #Función ejecutada por los hilos si usamos multithreading
 def lectura_socket_hilos(sock):
+	#Recepción de la petición
 	try:
 		peticion = sock.recv(4096)
 	except:
@@ -159,6 +166,7 @@ def lectura_socket_hilos(sock):
 	socket_list.append(sock)
 	mutex.release()
 	print peticion
+	#En caso de que sea una cadena vacía se cierra el socket
 	if not peticion:
 		print 'cadena vacia'
 		mutex.acquire()
@@ -170,8 +178,10 @@ def lectura_socket_hilos(sock):
 			return
 		mutex.release()
 		sock.close()
+
 	else:
-		respuesta = HTTP (peticion)#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
+		#Generamos un objeto que crea la cabecera y el mensaje de respuesta a partir de la petición
+		respuesta = HTTP (peticion)
 
 		#Si el método es GET:
 		if respuesta.get_metodo() == 'GET':
@@ -195,7 +205,7 @@ def lectura_socket_hilos(sock):
 		else:
 			cabecera = respuesta.generar_respuesta()
 			sock.send(cabecera)
-
+		#En caso de que la versión empleada sea 1.0 cerramos el socket después de cada petición
 		if(respuesta.version == 'HTTP/1.0'):
 			mutex.acquire()
 			socket_list.remove(sock)
@@ -220,7 +230,7 @@ class HTTP:
 
 		lista_peticion = peticion.splitlines()#Hacemos una lista con cada una de las lineas recibidas
 		metodo, url, version =lista_peticion[0].split()#Dividimos el primer string y guardamos cada campo en una variable
-		lista_peticion.pop(0)
+		lista_peticion.pop(0)#Eliminamos la primera línea que ya ha sido analiazda
 		#Obtenemos el resto de campos que nos interesen de la petición:
 		for linea in lista_peticion:
 			titulo = linea.split(':')
@@ -230,6 +240,7 @@ class HTTP:
 		#En caso de no especificar el archivo se devuelve la página principal
 		if url == '/':
 			url = '/index.html'
+		#Si nos pide el favicon insertamos la ruta donde está nuestro icono
 		elif url == '/favicon.ico':
 			url = path_favicon
 
@@ -238,7 +249,7 @@ class HTTP:
 			url, datos = url.split('?')
 		except:
 			url = url
-
+		#Guardamos los datos obtenidos en los atributos del objeto
 		self.version = version
 		self.url = path_index + 'index' + url #añadimos el ./index para indicar el directorio donde buscar
 		self.metodo = metodo
@@ -247,7 +258,7 @@ class HTTP:
 	def get_metodo(self):
 		return self.metodo
 
-	#Guarda el contenido de una petición POST
+	#Guarda el contenido de una petición POST con nombre la fecha en la carpeta especificada
 	def guardar_post(self, peticion):
 		datos = peticion.split('\r\n\r\n')
 		try:
@@ -285,12 +296,12 @@ class HTTP:
 			tipo_contenido = 'Content-type: text/html; charset=UTF-8'
 		else:
 			tipo_contenido = 'Content-type: text; charset=UTF-8'
-		#Insertamos este campo en la cabecera
+
 		return tipo_contenido
 
-	#Método que abre el archivo pedido con el método GET
+	#Método que abre el archivo pedido con el método GET u otro
 	def leer_archivo(self):
-		#Intentamos abrir el archivo pedido, en caso de no existir devolvemos un error 404
+		#Intentamos abrir el archivo pedido, en caso de no existir devolvemos un error 404 y el documento html diseñado para este error
 		try:
 			archivo = open(self.url, "r")
 		except IOError:
@@ -308,7 +319,7 @@ class HTTP:
 		codigo =  OK
 		longitud = 'Content-length: ' + str(os.path.getsize(self.url))
 		modificado = 'Last-Modified: ' + time.ctime(os.path.getmtime(self.url))
-
+		#Devolvemos el código generado, el contenido del obeto, la longitud del mismo y la fecha de modificación
 		return codigo, contenido, longitud, modificado
 
 	def generar_respuesta(self):
@@ -318,7 +329,6 @@ class HTTP:
 		fecha = 'Date: ' + datetime.datetime.today().strftime(format) + ' GMT'
 		servidor = 'Server: Python'
 		cache = 'Cache-Control: public, max-age=3'#max-age, tiempo en segundos (3 segundos para pruebas)
-		#cache = 'Cache-Control: no-cache'
 		rango = ''
 		tipo_contenido = ''
 		longitud = ''
@@ -364,10 +374,11 @@ class HTTP:
 		else:
 			codigo = BAD_REQUEST
 
+		#Concatenamos la versión con el código de estado
 		estado = self.version + ' ' + codigo
 		#Construcción de la cabecera con todos los campos incluidos:
 		cabecera = [estado, rango, fecha, servidor,tipo_contenido, cache, longitud, conexion, modificado, '\r\n']#creamos una lista con los campos de la cabecera
-		#Quitamos los campos vacíos de la cabecera (si es http 1.1 conexión estará vacío)
+		#Quitamos los campos vacíos de la cabecera si alguno no se ha usado
 		for campo in cabecera:
 			if campo == '':
 				cabecera.remove(campo)
